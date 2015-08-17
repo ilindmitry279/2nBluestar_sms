@@ -75,9 +75,13 @@ tn.write("2n\r")
 tn.read_until('',5)
 tn.write("at!g=a6\r")
 answer = tn.read_until('OK',3)
-print answer
+#print answer
 tn.write(gatemess + "\r")
 dr.append(tn.read_until('*smsout: 1,32,1',3))
+check = str(dr[0])
+if check.find('*smsout')==-1:
+    print 'SMS NOT SEND!'
+print dr
 tn.write("at!g=55\r")
 tn.read_until('',3)
 tn.close()
@@ -89,4 +93,6 @@ logfile = open("smslog.txt", "a")
 from datetime import datetime, date, time
 logfile.write(datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S") + ' ' + log + '\r')
 logfile.close()
-print log
+
+
+
