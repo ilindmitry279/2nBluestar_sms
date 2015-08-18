@@ -54,6 +54,38 @@ def csum(text):
     for i in range(len(cs)):
         control+=int(cs[i],16)
     return hex(control)[-2:]
+
+def connector(gatemess):
+    host = '172.16.0.11'
+    dr = []
+    tn = telnetlib.Telnet(host)
+    tn.write("\n\r")
+    tn.read_until('SG login: ',5)
+    tn.write("2n\r")
+    tn.read_until('Password: ',5)
+    tn.write("2n\r")
+    tn.read_until('',5)
+    tn.write("at!g=a6\r")
+    answer = tn.read_until('OK',3)
+    tn.write(gatemess + "\r")
+    dr.append(tn.read_until('*smsout: 1,32,1',3))
+    tn.write("at!g=55\r")
+    tn.read_until('',3)
+    tn.close()
+    return dr
+
+def logfile (dr):
+    log = dr[0][2:9] + ' ' + dr[0][13:15] + ' ' + dr[0][17:]
+    while log.find('\r\n') != -1:
+        replnumchr = log.find('\r\n')
+        log = log.replace((log[replnumchr:replnumchr+2]), ' ')
+    logfile = open("smslog.txt", "a")
+    from datetime import datetime
+    logfile.write(datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S") + ' ' + log + '\r')
+    logfile.close()
+    return datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S") + ' ' + log + '\r'
+
+
 num = str(sys.argv[1])
 mess  = str(sys.argv[2])
 try: 
@@ -62,37 +94,19 @@ except IndexError:
     flash = '0'
 pdumess = '0001000A81' + pdunumber(num) + '00' + isflash(flash) + convasciitoseven(mess)
 lenpdumess = str(len(pdumess)/2 - 1)
-gatemess = 'AT^SM=1,' + lenpdumess + ',' + pdumess + ',' + csum(pdumess)
-#print gatemess
-host = '172.16.0.11'
-dr = []
-tn = telnetlib.Telnet(host)
-tn.write("\n\r")
-tn.read_until('SG login: ',5)
-tn.write("2n\r")
-tn.read_until('Password: ',5)
-tn.write("2n\r")
-tn.read_until('',5)
-tn.write("at!g=a6\r")
-answer = tn.read_until('OK',3)
-#print answer
-tn.write(gatemess + "\r")
-dr.append(tn.read_until('*smsout: 1,32,1',3))
+gatemess = 'AT^SM=2,' + lenpdumess + ',' + pdumess + ',' + csum(pdumess)
+dr = connector(gatemess)
 check = str(dr[0])
 if check.find('*smsout')==-1:
     print 'SMS NOT SEND!'
-print dr
-tn.write("at!g=55\r")
-tn.read_until('',3)
-tn.close()
-log = dr[0][2:9] + ' ' + dr[0][13:15] + ' ' + dr[0][17:]
-while log.find('\r\n') != -1:
-    replnumchr = log.find('\r\n')
-    log = log.replace((log[replnumchr:replnumchr+2]), ' ')
-logfile = open("smslog.txt", "a")
-from datetime import datetime, date, time
-logfile.write(datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S") + ' ' + log + '\r')
-logfile.close()
+    while check.find('*smsout')==-1:
+        dr = connector(gatemess)
+        check = str(dr[0])
+print 'SMS IS SEND'
+
+print logfile(dr)
+
+
 
 
 
