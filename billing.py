@@ -2,11 +2,9 @@
 #coding=utf-8
 
 def zalyshok(sim):
-    #import pdb; pdb.set_trace()
     sim_s = str(sim)
-    import telnetlib
+    #import telnetlib
     host = '172.16.0.11'
-    dr = []
     tn = telnetlib.Telnet(host)
     tn.write("\n\r")
     tn.read_until('SG login: ',5)
