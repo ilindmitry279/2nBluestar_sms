@@ -1,6 +1,8 @@
 #!/usr/local/bin/python
 #coding=utf-8
+
 def zalyshok(sim):
+    #import pdb; pdb.set_trace()
     sim_s = str(sim)
     import telnetlib
     host = '172.16.0.11'
@@ -17,12 +19,16 @@ def zalyshok(sim):
     out_sms = tn.read_until('S;',6)
     tn.close()
     if out_sms.find('ZALYSHOK')== -1:
-        sim_n = sim
-        if sim_n < 6:
+        sim_n = int(sim)
+        if sim_n < 5:
             sim_n += 1
-            zalyshok(sim_n)
+            print sim_n
+            zal = zalyshok(sim_n)
         else:
-            zalyshok (open())
-    zal = out_sms[out_sms.find('ZALYSHOK'):-1]
-    zal = zal[10:-4]
+            print check_zero()[0]
+            zim = check_zero()[0]
+            zal = zalyshok(zim)
+    else:
+        zal = out_sms[out_sms.find('ZALYSHOK'):-1]
+        zal = zal[10:-4]
     return zal
