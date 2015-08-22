@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 #coding=utf-8
-def check_zero():
+def check_zero(filyk = 'bill.py'):
     from datetime import datetime
     #import pdb; pdb.set_trace()
     filyk = 'bill.py'
