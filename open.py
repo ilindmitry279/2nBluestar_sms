@@ -11,12 +11,12 @@ def check_zero(filyk = 'bill.py'):
         bill_r.close()
     except IOError:
         bill_a = open(filyk, 'a')
-        bill_a.write(datetime.strftime(datetime.now(), "%Y%m") + ' ')
+        bill_a.write(datetime.strftime(datetime.now(), "%Y%m"))
         bill_a.close()
         return sim_example
     if content.find(datetime.strftime(datetime.now(), "%Y%m")) == -1:
             bill_w = open(filyk, 'w')
-            bill_w.write(datetime.strftime(datetime.now(), "%Y%m") + ' ')
+            bill_w.write(datetime.strftime(datetime.now(), "%Y%m"))
             bill_w.close()
             return sim_example
     else:
