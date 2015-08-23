@@ -1,5 +1,24 @@
 #!/usr/local/bin/python
 #coding=utf-8
+
+# sms
+# sms sender for 2n Bluestar GSM gateway
+# Copyright (C) 2015 Ilin Dmytry <ilin.dmitry279@gmail.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Library General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
 import sys
 import telnetlib
 def pdunumber(number):
@@ -81,29 +100,90 @@ def logfile (dr):
         log = log.replace((log[replnumchr:replnumchr+2]), ' ')
     logfile = open("smslog.txt", "a")
     from datetime import datetime
-    logfile.write(datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S") + ' ' + log + '\r')
+    logfile.write(datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S") + ' ' + log + str(z) + '\r')
     logfile.close()
-    return datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S") + ' ' + log + '\r'
+    return datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S") + ' ' + log + str(z) + '\r'
 
+def zalyshok(sim):
+    host = '172.16.0.11'
+    tn = telnetlib.Telnet(host)
+    tn.write("\n\r")
+    tn.read_until('SG login: ',5)
+    tn.write("2n\r")
+    tn.read_until('Password: ',5)
+    tn.write("2n\r")
+    out_ok = tn.read_until('OK',5)
+    ussd112='at&g' + str(sim) + '=xtd*112#;\r'
+    tn.write(ussd112)
+    out_sms = tn.read_until('S;',6)
+    tn.close()
+    if out_sms.find('ZALYSHOK')== -1:
+        #sim_n = sim
+        if jj < (len(check_zero())-1):
+            jj += 1
+            zal = zalyshok(check_zero()[jj])
+        else:
+            zim = check_zero()[0]
+            zal = zalyshok(zim)
+    else:
+        zal = out_sms[out_sms.find('ZALYSHOK'):-1]
+        zal = zal[10:-4]
+    while type(zal[0]) is tuple:
+        zal = zal[0]
+    return zal,sim
 
+def check_zero(filyk = 'bill.py'):
+    from datetime import datetime
+    #import pdb; pdb.set_trace()
+    sim_example= ['0', '1', '2', '3', '4', '5']
+    try:
+        bill_r = open(filyk, 'r')
+        content = bill_r.read()
+        bill_r.close()
+    except IOError:
+        bill_a = open(filyk, 'a')
+        bill_a.write(datetime.strftime(datetime.now(), "%Y%m"))
+        bill_a.close()
+        return sim_example
+    if content.find(datetime.strftime(datetime.now(), "%Y%m")) == -1:
+            bill_w = open(filyk, 'w')
+            bill_w.write(datetime.strftime(datetime.now(), "%Y%m"))
+            bill_w.close()
+            return sim_example
+    else:
+        sim = content.split(' ')
+        sim_for_check = [int(x) for x in sim_example if not x in sim]
+        return sim_for_check
+
+#Проверка вводимых аргументов
 num = str(sys.argv[1])
 mess  = str(sys.argv[2])
 try: 
     flash = sys.argv[3]
 except IndexError: 
     flash = '0'
+# Биллинг
+for jj in check_zero():
+    z = zalyshok(jj)
+    if z[0] == '0':
+        bill_a = open('bill.py', 'a')
+        bill_a.write(' ' + str(z[1]))
+    else:
+        break
+#Формирование PDU
 pdumess = '0001000A81' + pdunumber(num) + '00' + isflash(flash) + convasciitoseven(mess)
 lenpdumess = str(len(pdumess)/2 - 1)
-gatemess = 'AT^SM=2,' + lenpdumess + ',' + pdumess + ',' + csum(pdumess)
+gatemess = 'AT^SM=' + str(z[1]) + ',' + lenpdumess + ',' + pdumess + ',' + csum(pdumess)
+# Отправка сообщения
 dr = connector(gatemess)
 check = str(dr[0])
 if check.find('*smsout')==-1:
-    print 'SMS NOT SEND!'
+    print 'SMS IS SENT ...'
     while check.find('*smsout')==-1:
         dr = connector(gatemess)
         check = str(dr[0])
 print 'SMS IS SEND'
-
+# Запись в лог файл
 print logfile(dr)
 
 
