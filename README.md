@@ -10,7 +10,7 @@ XXXXXXXXXX - tel. number оf the recipient
 y - sms in push format
 
 sms in standart format(not push):
-
 sms.py XXXXXXXXXX "Text message"
+
 XXXXXXXXXX - tel. number оf the recipient
 
