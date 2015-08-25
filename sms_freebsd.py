@@ -1,4 +1,4 @@
-#!C:\Python27\python.exe
+#!/usr/local/bin/python
 #coding=utf-8
 
 # sms
@@ -98,9 +98,9 @@ def logfile (dr):
     while log.find('\r\n') != -1:
         replnumchr = log.find('\r\n')
         log = log.replace((log[replnumchr:replnumchr+2]), ' ')
-    logfile = open("smslog.txt", "a")
+    logfile = open("/root/smspdu/smslog.txt", "a")
     from datetime import datetime
-    logfile.write(datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S") + ' ' + log + str(z) + '\r')
+    logfile.write(datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S") + ' ' + log + str(z) + '\n')
     logfile.close()
     return datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S") + ' ' + log + str(z) + '\r'
 
@@ -134,7 +134,7 @@ def zalyshok(sim):
         zal = zal[10:-4]
     return zal,sim
 
-def check_zero(filyk = 'bill.py'):
+def check_zero(filyk = '/root/smspdu/bill.py'):
     from datetime import datetime
     sim_example= ['0', '1', '2', '3', '4', '5']
     try:
@@ -167,16 +167,16 @@ except IndexError:
 for jj in check_zero():
     z = zalyshok(jj)
     if int(z[0]) < 10:#Минимальный остаток смс для отправки
-        bill_a = open('bill.py', 'a')
+        bill_a = open('/root/smspdu/bill.py', 'a')
         bill_a.write(' ' + str(z[1]))
         bill_a.close()
     else:
         break
 if len(check_zero()) == 0:
     zero_bal = "Balance of all cards is low then limit. SMS NOT SEND!"
-    logfile = open("smslog.txt", "a")
+    logfile = open("/root/smspdu/smslog.txt", "a")
     from datetime import datetime
-    logfile.write(datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S") + ' ' + '0001000A81' + pdunumber(num) + '00' + isflash(flash) + convasciitoseven(mess) + ' ' + zero_bal +'\r')
+    logfile.write(datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S") + ' ' + '0001000A81' + pdunumber(num) + '00' + isflash(flash) + convasciitoseven(mess) + ' ' + zero_bal +'\n')
     logfile.close()
     print zero_bal
     sys.exit()
@@ -195,6 +195,7 @@ if check.find('*smsout')==-1:
 print 'SMS WAS SENT'
 # Запись в лог файл
 print logfile(dr)
+
 
 
 
