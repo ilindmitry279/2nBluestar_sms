@@ -75,7 +75,7 @@ def csum(text):
     return hex(control)[-2:]
 
 def connector(gatemess):
-    host = '172.16.0.11' # Change 172.16.0.11 on your ip address
+    host = '172.16.0.11' # Change 172.16.0.11 on ip address of your 2n blustar gateway
     dr = []
     tn = telnetlib.Telnet(host)
     tn.write("\n\r")
@@ -105,7 +105,7 @@ def logfile (dr):
     return datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S") + ' ' + log + str(z) + '\r'
 
 def zalyshok(sim):
-    host = '172.16.0.11' # Change 172.16.0.11 on your ip address
+    host = '172.16.0.11' # Change 172.16.0.11 on ip address of your 2n blustar gateway
     tn = telnetlib.Telnet(host)
     tn.write("\n\r")
     tn.read_until('SG login: ',5)
