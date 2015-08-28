@@ -184,7 +184,7 @@ if len(check_zero()) == 0:
 pdumess = '0001000A81' + pdunumber(num) + '00' + isflash(flash) + convasciitoseven(mess)
 lenpdumess = str(len(pdumess)/2 - 1)
 gatemess = 'AT^SM=' + str(z[1]) + ',' + lenpdumess + ',' + pdumess + ',' + csum(pdumess)
-# PDU formation
+# SMS sending
 dr = connector(gatemess)
 check = str(dr[0])
 if check.find('*smsout')==-1:
