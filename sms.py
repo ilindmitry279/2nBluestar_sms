@@ -75,14 +75,14 @@ def csum(text):
     return hex(control)[-2:]
 
 def connector(gatemess):
-    host = '172.16.0.11'
+    host = '172.16.0.11' # Change 172.16.0.11 on your ip address
     dr = []
     tn = telnetlib.Telnet(host)
     tn.write("\n\r")
     tn.read_until('SG login: ',5)
-    tn.write("2n\r")
+    tn.write("2n\r") # Change 2n on your login
     tn.read_until('Password: ',5)
-    tn.write("2n\r")
+    tn.write("2n\r") # Change 2n on your password
     tn.read_until('',5)
     tn.write("at!g=a6\r")
     answer = tn.read_until('OK',3)
@@ -105,20 +105,19 @@ def logfile (dr):
     return datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S") + ' ' + log + str(z) + '\r'
 
 def zalyshok(sim):
-    host = '172.16.0.11'
+    host = '172.16.0.11' # Change 172.16.0.11 on your ip address
     tn = telnetlib.Telnet(host)
     tn.write("\n\r")
     tn.read_until('SG login: ',5)
-    tn.write("2n\r")
+    tn.write("2n\r") # Change 2n on your login
     tn.read_until('Password: ',5)
-    tn.write("2n\r")
+    tn.write("2n\r") # Change 2n on your password
     out_ok = tn.read_until('OK',5)
     ussd112='at&g' + str(sim) + '=xtd*112#;\r'
     tn.write(ussd112)
     out_sms = tn.read_until('S;',6)
     tn.close()
     if out_sms.find('ZALYSHOK')== -1:
-        #sim_n = sim
         global jj
         if jj < (len(check_zero())-1):
             jj += 1
@@ -156,17 +155,17 @@ def check_zero(filyk = 'bill.py'):
         sim_for_check = [int(x) for x in sim_example if not x in sim]
         return sim_for_check
 
-#Проверка вводимых аргументов
+# Checking the input arguments
 num = str(sys.argv[1])
 mess  = str(sys.argv[2])
 try: 
     flash = sys.argv[3]
 except IndexError: 
     flash = '0'
-# Биллинг
+# Checking SMS balance
 for jj in check_zero():
     z = zalyshok(jj)
-    if int(z[0]) < 10:#Минимальный остаток смс для отправки
+    if int(z[0]) < 10: # Мinimum balance for sending SMS
         bill_a = open('bill.py', 'a')
         bill_a.write(' ' + str(z[1]))
         bill_a.close()
@@ -180,11 +179,11 @@ if len(check_zero()) == 0:
     logfile.close()
     print zero_bal
     sys.exit()
-#Формирование PDU
+# PDU formation
 pdumess = '0001000A81' + pdunumber(num) + '00' + isflash(flash) + convasciitoseven(mess)
 lenpdumess = str(len(pdumess)/2 - 1)
 gatemess = 'AT^SM=' + str(z[1]) + ',' + lenpdumess + ',' + pdumess + ',' + csum(pdumess)
-# Отправка сообщения
+# SMS sending
 dr = connector(gatemess)
 check = str(dr[0])
 if check.find('*smsout')==-1:
@@ -193,7 +192,7 @@ if check.find('*smsout')==-1:
         dr = connector(gatemess)
         check = str(dr[0])
 print 'SMS WAS SENT'
-# Запись в лог файл
+# Logging
 print logfile(dr)
 
 
