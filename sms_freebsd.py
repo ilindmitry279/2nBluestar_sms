@@ -156,17 +156,17 @@ def check_zero(filyk = '/root/smspdu/bill.py'):
         sim_for_check = [int(x) for x in sim_example if not x in sim]
         return sim_for_check
 
-#Проверка вводимых аргументов
+# Checking the input arguments
 num = str(sys.argv[1])
 mess  = str(sys.argv[2])
 try: 
     flash = sys.argv[3]
 except IndexError: 
     flash = '0'
-# Биллинг
+# Checking SMS balance
 for jj in check_zero():
     z = zalyshok(jj)
-    if int(z[0]) < 10:#Минимальный остаток смс для отправки
+    if int(z[0]) < 10:# Мinimum balance for sending SMS
         bill_a = open('/root/smspdu/bill.py', 'a')
         bill_a.write(' ' + str(z[1]))
         bill_a.close()
@@ -180,11 +180,11 @@ if len(check_zero()) == 0:
     logfile.close()
     print zero_bal
     sys.exit()
-#Формирование PDU
+# PDU formation
 pdumess = '0001000A81' + pdunumber(num) + '00' + isflash(flash) + convasciitoseven(mess)
 lenpdumess = str(len(pdumess)/2 - 1)
 gatemess = 'AT^SM=' + str(z[1]) + ',' + lenpdumess + ',' + pdumess + ',' + csum(pdumess)
-# Отправка сообщения
+# PDU formation
 dr = connector(gatemess)
 check = str(dr[0])
 if check.find('*smsout')==-1:
@@ -193,7 +193,7 @@ if check.find('*smsout')==-1:
         dr = connector(gatemess)
         check = str(dr[0])
 print 'SMS WAS SENT'
-# Запись в лог файл
+# Logging
 print logfile(dr)
 
 
